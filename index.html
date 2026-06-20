@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusMind DAT - Data Entry</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🧠 FocusMind DAT</h1>
+            <p>ระบบบันทึกและวิเคราะห์ข้อมูลการโฟกัส</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="card">
+            <h2>บันทึกข้อมูลประจำวัน</h2>
+            <p style="color: #666; margin-bottom: 20px;">กรอกข้อมูลด้านล่างเพื่อส่งไปบันทึกที่ Google Sheets ของคุณ</p>
+            
+            <form id="focusForm">
+                <div class="form-group">
+                    <label for="studentId">รหัสนักเรียน (Student ID):</label>
+                    <input type="text" id="studentId" name="studentId" required placeholder="เช่น 69010234">
+                </div>
+
+                <div class="form-group">
+                    <label for="focusScore">ระดับสมาธิ / การโฟกัส (1-10):</label>
+                    <input type="number" id="focusScore" name="focusScore" min="1" max="10" required placeholder="กรอกตัวเลข 1 ถึง 10">
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">บันทึกเพิ่มเติม (Notes):</label>
+                    <textarea id="notes" name="notes" rows="4" placeholder="วันนี้สมาธิเป็นอย่างไรบ้าง..."></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn">🚀 ส่งข้อมูลเข้า Google Sheets</button>
+            </form>
+
+            <div id="statusMessage" class="status-box" style="display: none;"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 FocusMind DAT Project. Powered by GitHub & Google Sheets.</p>
+    </footer>
+
+    <script>
+        document.getElementById('focusForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); 
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'กำลังบันทึกข้อมูล...';
+            
+            // ดึงค่ารหัสนักเรียนและคะแนนจากฟอร์มหน้าเว็บ
+            const formData = {
+                studentId: document.getElementById('studentId').value,
+                focusScore: document.getElementById('focusScore').value,
+                notes: document.getElementById('notes').value
+            };
+
+            // 🛑 วางลิงก์ Web App URL ที่คุณก๊อปปี้มาจาก Google Apps Script ตรงนี้แทนที่ในเครื่องหมายคำพูดด้านล่าง
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyO7jC5lreUL9ND0YiszgMAEL3I5n05n1gx6qBqQyyeR1ciR3ObkeCA496IEYPOcStEFQ/exec'; 
+
+            try {
+                await fetch(scriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                statusMessage.style.display = 'block';
+                statusMessage.style.backgroundColor = '#e8f5e9';
+                statusMessage.style.borderColor = '#2e7d32';
+                statusMessage.style.color = '#2e7d32';
+                statusMessage.innerHTML = '<strong>สำเร็จ!</strong> ข้อมูลถูกส่งไปบันทึกใน Google Sheets แล้ว';
+                
+                document.getElementById('focusForm').reset();
+
+            } catch (error) {
+                statusMessage.style.display = 'block';
+                statusMessage.style.backgroundColor = '#ffebee';
+                statusMessage.style.borderColor = '#c62828';
+                statusMessage.style.color = '#c62828';
+                statusMessage.innerHTML = '<strong>เกิดข้อผิดพลาด:</strong> ไม่สามารถส่งข้อมูลได้';
+                console.error('Error!', error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = '🚀 ส่งข้อมูลเข้า Google Sheets';
+            }
+        });
+    </script>
+</body>
+</html>
